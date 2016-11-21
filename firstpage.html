@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <Meta Http-Equiv="Content-Type" Content="text/html; Charset=big5">
+    <title>田原香尾牙抽獎</title>
+</head>
+<body>
+    <!--css-->
+    <link rel="stylesheet" href="style.css">
+      
+    <div id="dropaward">請拖曳獎項檔案 (.XLSX) 到這來</div>
+
+    <button id="go" type="button">Click Me!</button>
+    <button id="reset" type="button">reset</button>
+    <button id="raffleagain" type="button">raffle again</button>
+    <button id="export" type="button">匯出 Excel</button>
+    <select id="awardselect"></select>
+
+    <div>獎項</div>
+    <table id="award"></table>
+    <div>抽獎人</div>
+    <table id="emploee"></table>    
+</body>
+</html>
+
+<!--js-->
+<script src="shim.js"></script>
+<script src="jszip.js"></script>
+<script src="xlsx.js"></script>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="other.js"></script>
+<script src="Export2Excel.js"></script>
+<script src="FileSaver.js"></script>
