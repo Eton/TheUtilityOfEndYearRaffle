@@ -1,10 +1,10 @@
-var X = XLSX;
+ï»¿var X = XLSX;
 var emploee, award;
 
-// ¤w¸g¤¤¼úªº­û¤u½s¸¹
+// å·²ç¶“ä¸­ççš„å“¡å·¥ç·¨è™Ÿ
 var hasaward = [];
 
-// ªì©l¤Æ
+// åˆå§‹åŒ–
 function initial() {
 
     // initial memory data
@@ -13,11 +13,11 @@ function initial() {
     hasaward = [];
 
     // initial html view
-    $('#award').empty();
-    $('#emploee').empty();
+    $('#award tbody').empty();
+    $('#emploee tbody').empty();
 }
 
-// ÀÉ®×©ì¦²
+// æª”æ¡ˆæ‹–æ›³
 var dropaward = document.getElementById('dropaward');
 if (dropaward.addEventListener) {
     dropaward.addEventListener('dragenter', handleDragover, false);
@@ -25,7 +25,7 @@ if (dropaward.addEventListener) {
     dropaward.addEventListener('drop', handleDrop, false);
 }
 
-// ©â¼ú«ö¶s
+// æŠ½çæŒ‰éˆ•
 var gobtn = document.getElementById('go');
 if (gobtn.addEventListener) {
     gobtn.addEventListener('click', handleGo, false);
@@ -48,13 +48,13 @@ if (exportBtn.addEventListener) {
 
 function handleExport(e) {
     if (typeof award == 'undefined') {
-        alert('©|¥¼¶×¤J¼ú¶µ¸ê®Æ');
+        alert('å°šæœªåŒ¯å…¥çé …è³‡æ–™');
         return;
     }
 
     for (var i = 0 ; i < award.length ; ++i) {
         if (award[i].isAlreadyRaffled === false) {
-            alert('©|¦³¼ú¶µ¥¼©â¼ú');
+            alert('å°šæœ‰çé …æœªæŠ½ç');
             return;
         }
     }
@@ -62,13 +62,13 @@ function handleExport(e) {
     export_table_to_excel('emploee');
 }
 
-// ¤è«K´ú¸Õ¥Î¡A¤@ª½­«½Æ©â¼ú
+// æ–¹ä¾¿æ¸¬è©¦ç”¨ï¼Œä¸€ç›´é‡è¤‡æŠ½ç
 function handleRaffleAgain(e) {
     hasaward = [];
 
     for (var i = 0; i < emploee.length; ++i) {
-        emploee[i].¼ú¶µ = "";
-        $('#emploee' + emploee[i].½s¸¹).removeClass('hasaward');
+        emploee[i].çé … = "";
+        $('#emploee' + emploee[i].ç·¨è™Ÿ).removeClass('hasaward');
         $('#emploee' + (i + 1) + ' .award').html('');
     }
 
@@ -83,33 +83,33 @@ function hanleReset(e) {
     initial();
 }
 
-// ©â¼ú«ö¶s
+// æŠ½çæŒ‰éˆ•
 function handleGo(e) {
 
-    // §PÂ_¬O§_¦³­û¤u & ¼ú¶µ¸ê®Æ
+    // åˆ¤æ–·æ˜¯å¦æœ‰å“¡å·¥ & çé …è³‡æ–™
     if (typeof emploee == 'undefined' || typeof award == 'undefined' || emploee === null || award === null) {
-        alert('½Ğ¥ı¶×¤J­û¤u & ¼ú¶µ¸ê®Æ');
+        alert('è«‹å…ˆåŒ¯å…¥å“¡å·¥ & çé …è³‡æ–™');
         return;
     }
 
-    // ¥Ø«e­n©âªº¼ú¶µ¬O
+    // ç›®å‰è¦æŠ½çš„çé …æ˜¯
     var awardnum = $('#awardselect').val();
 
     //var awardObject = $.grep(award, function (e) {
-    //    return e.¼ú¶µ == awardname;
+    //    return e.çé … == awardname;
     //})[0];
     var awardObject = award[awardnum - 1];
 
-    // ¦pªG¸Ó¼ú¶µ¤w¸g©â¹L¤F
+    // å¦‚æœè©²çé …å·²ç¶“æŠ½éäº†
     if (awardObject.isAlreadyRaffled === true) {
-        alert(awardObject.¼ú¶µ + " ¤w¸g©â¹LÅo!");
+        alert(awardObject.çé … + " å·²ç¶“æŠ½éå›‰!");
         return;
     }
 
     //for (var i = 0; i < award.length; i++) {
-    for (var j = 0; j < awardObject.¼Æ¶q; j++) {
+    for (var j = 0; j < awardObject.æ•¸é‡; j++) {
         var num = getRandomNum(1, emploee.length, hasaward);
-        markEmploeeHasAward(num, awardObject.¼ú¶µ);
+        markEmploeeHasAward(num, awardObject.çé …);
         hasaward.push(num);
     }
 
@@ -117,19 +117,19 @@ function handleGo(e) {
     //}
 }
 
-// ¨ú±o¶Ã¼Æ¸¹½X
+// å–å¾—äº‚æ•¸è™Ÿç¢¼
 function getRandomNum(min, max, exclude) {
     var num = Math.floor(Math.random() * (max - min + 1)) + min;
     return exclude.indexOf(num) === -1 ? num : getRandomNum(min, max, exclude);
 }
 
-// ¼Ğ¥Ü­û¤u¤w¸g¤¤¼ú
+// æ¨™ç¤ºå“¡å·¥å·²ç¶“ä¸­ç
 function markEmploeeHasAward(num, award) {
 
-    // §PÂ_¸Ó­û¤u¨S¦³±o¼ú
-    //if (emploee[num - 1].¼ú¶µ)
+    // åˆ¤æ–·è©²å“¡å·¥æ²’æœ‰å¾—ç
+    //if (emploee[num - 1].çé …)
 
-    emploee[num - 1].¼ú¶µ = award;
+    emploee[num - 1].çé … = award;
 
     // add has award class
     $('#emploee' + num).addClass('hasaward');
@@ -138,11 +138,11 @@ function markEmploeeHasAward(num, award) {
     $('#emploee' + num + ' .award').html(award);
 }
 
-// ¼Ğ¥Ü¸Ó¼ú¶µ¤w¸g©â¹L¤F
+// æ¨™ç¤ºè©²çé …å·²ç¶“æŠ½éäº†
 function markAwardHasRaffled(num) {
     award[num - 1].isAlreadyRaffled = true;
 
-    $('#award' + num + ' .isAlreadyRaffled').html('¤w©â§¹');
+    $('#award' + num + ' .isAlreadyRaffled').html('å·²æŠ½å®Œ');
 }
 
 function handleDrop(e) {
@@ -181,53 +181,62 @@ function fixdata(data) {
     return o;
 }
 
-// ±N­û¤u & ¼ú¶µ¸ê°TÅã¥Ü¦b­¶­±¤W
+// å°‡å“¡å·¥ & çé …è³‡è¨Šé¡¯ç¤ºåœ¨é é¢ä¸Š
 function process_wb(wb) {
-    // ±N wordbook Âà¦¨ json
+    // å°‡ wordbook è½‰æˆ json
     var data = to_json(wb);
 
-    // ±N¼ú¶µ & ­û¤u ¨q¦b table ¤W
+    // å°‡çé … & å“¡å·¥ ç§€åœ¨ table ä¸Š
 
-    // sheet1 ¼ú¶µ
-    $('#award').empty();
-    award = data.¼ú¶µ;
+    // sheet1 çé …
+    $('#award tbody').empty();
+
+    // header
+   // $('#award').append('<th>çé …</th><th>æ•¸é‡</th><th></th>');
+
+    award = data.çé …;
     for (var i = 0; i < award.length; ++i) {
 
         award[i].num = i + 1;
         award[i].isAlreadyRaffled = false;
 
         tr = $('<tr id="award' + award[i].num + '"/>');
-        tr.append("<td>" + award[i].¼ú¶µ + "</td>");
-        tr.append("<td>" + award[i].¼Æ¶q + "</td>");
+        tr.append("<td>" + award[i].num + "</td>");
+        tr.append("<td>" + award[i].çé … + "</td>");
+        tr.append("<td>" + award[i].æ•¸é‡ + "</td>");
         tr.append("<td class='isAlreadyRaffled'></td>");
-        $('#award').append(tr);
+        $('#award tbody').append(tr);
     }
 
-    // sheet2 ­û¤u
-    $('#emploee').empty();
-    emploee = data.­û¤u;
+    // sheet2 å“¡å·¥
+    $('#emploee tbody').empty();
+
+    // header
+    //$('#emploee').append('<tr><th>ç·¨è™Ÿ</th><th>éƒ¨é–€</th><th>å“¡å·¥</th><th>çé …</th></tr>');
+
+    emploee = data.å“¡å·¥;
     for (var i = 0; i < emploee.length; ++i) {
 
-        // ­û¤u·s¼W¼ú¶µÄİ©Ê
-        emploee[i].½s¸¹ = i + 1;
-        emploee[i].¼ú¶µ = "";
+        // å“¡å·¥æ–°å¢çé …å±¬æ€§
+        emploee[i].ç·¨è™Ÿ = i + 1;
+        emploee[i].çé … = "";
 
-        tr = $('<tr id="emploee' + emploee[i].½s¸¹ + '"/>');
-        tr.append("<td>" + emploee[i].½s¸¹ + "</td>");
-        tr.append("<td>" + emploee[i].³¡ªù + "</td>");
-        tr.append("<td>" + emploee[i].­û¤u + "</td>");
+        tr = $('<tr id="emploee' + emploee[i].ç·¨è™Ÿ + '"/>');
+        tr.append("<td>" + emploee[i].ç·¨è™Ÿ + "</td>");
+        tr.append("<td>" + emploee[i].éƒ¨é–€ + "</td>");
+        tr.append("<td>" + emploee[i].å“¡å·¥ + "</td>");
         tr.append("<td class='award'></td>");
-        $('#emploee').append(tr);
+        $('#emploee tbody').append(tr);
     }
 }
 
 function setAwardSelect(awards) {
     for (var i = 0; i < awards.length; ++i) {
-        $('#awardselect').append($("<option></option>").val(awards[i].num).html(awards[i].¼ú¶µ));
+        $('#awardselect').append($("<option></option>").val(awards[i].num).html(awards[i].çé …));
     }
 }
 
-// ±N workbook ¿é¥X json
+// å°‡ workbook è¼¸å‡º json
 function to_json(workbook) {
     var result = {};
     workbook.SheetNames.forEach(function (sheetName) {
