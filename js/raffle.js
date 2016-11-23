@@ -4,6 +4,8 @@ var emploee, award;
 // 已經中獎的員工編號
 var hasaward = [];
 
+var raffleTimeInterval = 1500;
+
 // 初始化
 function initial() {
 
@@ -15,6 +17,7 @@ function initial() {
     // initial html view
     $('#award tbody').empty();
     $('#emploee tbody').empty();
+    $('#awardselect').empty();
 }
 
 // 檔案拖曳
@@ -95,9 +98,7 @@ function handleGo(e) {
     // 目前要抽的獎項是
     var awardnum = $('#awardselect').val();
 
-    //var awardObject = $.grep(award, function (e) {
-    //    return e.獎項 == awardname;
-    //})[0];
+    // 獎項資料
     var awardObject = award[awardnum - 1];
 
     // 如果該獎項已經抽過了
@@ -106,15 +107,22 @@ function handleGo(e) {
         return;
     }
 
-    //for (var i = 0; i < award.length; i++) {
-    for (var j = 0; j < awardObject.數量; j++) {
+    var count = 0;
+    var raffling = setInterval(function () {
+
         var num = getRandomNum(1, emploee.length, hasaward);
+        playCongratulationsSoundEffects();
         markEmploeeHasAward(num, awardObject.獎項);
         hasaward.push(num);
-    }
 
-    markAwardHasRaffled(awardObject.num);
-    //}
+        if (++count >= awardObject.數量) {
+            clearInterval(raffling);
+            markAwardHasRaffled(awardObject.num);
+            return;
+        }
+
+    }, raffleTimeInterval);
+
 }
 
 // 取得亂數號碼
@@ -191,9 +199,6 @@ function process_wb(wb) {
     // sheet1 獎項
     $('#award tbody').empty();
 
-    // header
-   // $('#award').append('<th>獎項</th><th>數量</th><th></th>');
-
     award = data.獎項;
     for (var i = 0; i < award.length; ++i) {
 
@@ -210,9 +215,6 @@ function process_wb(wb) {
 
     // sheet2 員工
     $('#emploee tbody').empty();
-
-    // header
-    //$('#emploee').append('<tr><th>編號</th><th>部門</th><th>員工</th><th>獎項</th></tr>');
 
     emploee = data.員工;
     for (var i = 0; i < emploee.length; ++i) {
@@ -231,6 +233,8 @@ function process_wb(wb) {
 }
 
 function setAwardSelect(awards) {
+    $('#awardselect').empty();
+
     for (var i = 0; i < awards.length; ++i) {
         $('#awardselect').append($("<option></option>").val(awards[i].num).html(awards[i].獎項));
     }
@@ -246,4 +250,15 @@ function to_json(workbook) {
         }
     });
     return result;
+}
+
+// 播放恭喜中獎音效
+function playCongratulationsSoundEffects() {
+
+    var num = getRandomNum(1, 2, []);
+    $('#Congratulations' + num)[0].play();
+}
+
+function test() {
+    $('#content').load('raffle.html');
 }
