@@ -1,0 +1,150 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Etonsu">
+    <link rel="icon" href="">
+    <title>田原香尾牙抽獎</title>
+
+    <!-- 最新編譯和最佳化的 CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <!-- 選擇性佈景主題 -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+    <!--自訂-->
+    <!--<link rel="stylesheet" href="css/style.css">-->
+
+    <style>
+        .ultest {
+            padding: 0px;
+            position: relative;
+            top: -900px;
+        }
+
+        .slot {
+            overflow: hidden;
+            height: 100px;
+            width: 100px;
+            display: inline-block;
+            border: 1px solid #808080;
+        }
+
+        div ul li {
+            background-color: red;
+            width: 100px;
+            height: 100px;
+            font-size: 70px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 0 #000000;
+            font-family: 'Microsoft JhengHei',sans-serif;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slot" id="test">
+        <ul class="ultest">
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>4</li>
+            <li>5</li>
+            <li>6</li>
+            <li>7</li>
+            <li>8</li>
+            <li>9</li>            
+            <li>10</li>     
+            <!--<li><span>1</span></li>
+            <li><span>2</span></li>
+            <li><span>3</span></li>
+            <li><span>4</span></li>
+            <li><span>5</span></li>
+            <li><span>6</span></li>
+            <li><span>7</span></li>
+            <li><span>8</span></li>
+            <li><span>9</span></li>-->
+        </ul>
+    </div>
+
+    <button id="test" type="button" onclick="test()">測試抽獎</button>
+
+</body>
+</html>
+
+<!--js-->
+<script src="js/thirdparty/shim.js"></script>
+<script src="js/thirdparty/jszip.js"></script>
+<script src="js/thirdparty/xlsx.js"></script>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="js/thirdparty/Export2Excel.js"></script>
+<script src="js/thirdparty/FileSaver.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+<script src="js/jquery.easing.1.3.js" type="text/javascript" charset="utf-8"></script>
+
+<script>
+
+    var animationSpeed = 0;
+    var loops = 5;
+    var showTime = 6000;
+    var increaseSpeed = (showTime / loops) / loops;
+    var currentLoop = 0;
+    var initialpos = -(10 * 100 - 100);
+
+    function test() {
+        //alert('test');
+
+        //var newtop = $('#test .ultest').position().top + 10;
+
+        ////height
+        //var height = $('#test .ultest').height();
+
+        //if (newtop >= 0) newtop = -(height - 100);
+
+        //$('#test .ultest').css('top', newtop + 'px');
+
+        console.log("animationSpeed : " + animationSpeed);
+
+        $('#test .ultest')
+            .css('top', '-18px')
+            .animate({ 'top': '-0px' }, animationSpeed, 'linear', function () {
+                end();
+            });
+
+
+    }
+
+    function end(){
+        animationSpeed += increaseSpeed;
+
+        
+
+        if (++currentLoop < loops) {
+
+            test();
+
+        } else {
+
+            finish();
+
+        }
+    }
+
+    function finish() {
+        var endNum = 5;
+
+        var finalPos = -((100 * endNum) - 100);
+        var finalSpeed = ((animationSpeed * 0.5) * (10)) / endNum;
+
+        console.log('finalPos : ' + finalPos + " , finalSpeed : " + finalSpeed);
+
+        $('#test .ultest')
+            .css('top', initialpos)
+            .animate({ 'top': finalPos }, finalSpeed, 'easeOutSine', function () {
+                
+            });
+    }
+</script>

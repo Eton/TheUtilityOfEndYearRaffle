@@ -14,18 +14,34 @@
 }
 
 body {
-    padding-top: 60px;    
-    font-family:Arial,Microsoft JhengHei,sans-serif;
-    font-size:18px;
+    padding-top: 60px;
+    font-family: Arial,Microsoft JhengHei,sans-serif;
+    font-size: 18px;
 }
 
-.tabletitle{
-    font-size:24px;
-    text-align:center;
-    color:blue;
-    background-color:lightgray;
+.tabletitle {
+    font-size: 24px;
+    text-align: center;
+    color: blue;
+    background-color: lightgray;
 }
 
+ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.jSlots-wrapper {
+    overflow: hidden;
+    height: 20px;
+    display: inline-block; /* to size correctly, can use float too, or width*/
+    border: 1px solid #999;
+}
+
+.slot {
+    float: left;
+}
 
 /*#award{    
     width: 50%;

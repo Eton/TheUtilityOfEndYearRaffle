@@ -6,18 +6,29 @@ var hasaward = [];
 
 var raffleTimeInterval = 1500;
 
+var slotmachine;
+
+// 抽獎次數
+var raffleCount = 0;
+
+// 目前抽獎的獎項名稱
+var currentAwardName;
+
+// 目前抽獎的獎項編號
+var currentAwardNum;
+
 // 初始化
 function initial() {
 
     // initial memory data
-    emploee = {};
-    award = {};
+    emploee = [];
+    award = [];
     hasaward = [];
 
     // initial html view
     $('#award tbody').empty();
     $('#emploee tbody').empty();
-    $('#awardselect').empty();
+    $('#awardselect').empty();    
 }
 
 // 檔案拖曳
@@ -90,7 +101,7 @@ function hanleReset(e) {
 function handleGo(e) {
 
     // 判斷是否有員工 & 獎項資料
-    if (typeof emploee == 'undefined' || typeof award == 'undefined' || emploee === null || award === null) {
+    if (typeof emploee == 'undefined' || typeof award == 'undefined' || emploee === null || award === null || emploee.length <= 0 || award.length <= 0) {
         alert('請先匯入員工 & 獎項資料');
         return;
     }
@@ -107,22 +118,30 @@ function handleGo(e) {
         return;
     }
 
-    var count = 0;
-    var raffling = setInterval(function () {
+    raffleCount = awardObject.數量;
+    currentAwardName = awardObject.獎項;
+    currentAwardNum = awardObject.num;
 
-        var num = getRandomNum(1, emploee.length, hasaward);
-        playCongratulationsSoundEffects();
-        markEmploeeHasAward(num, awardObject.獎項);
-        hasaward.push(num);
+    // 開始抽獎
+    raffle();
+}
 
-        if (++count >= awardObject.數量) {
-            clearInterval(raffling);
-            markAwardHasRaffled(awardObject.num);
-            return;
-        }
+// 抽獎
+function raffle() {
+    if (raffleCount-- <= 0)
+    {
+        markAwardHasRaffled(currentAwardNum);
+        return;
+    }
+        
+    slotmachine[0].slotmachine.playSlots();
+}
 
-    }, raffleTimeInterval);
-
+function raffleEnd(raffleNum) {
+    alert(raffleNum);
+    playCongratulationsSoundEffects();
+    markEmploeeHasAward(raffleNum, currentAwardName);
+    raffle();
 }
 
 // 取得亂數號碼
@@ -230,6 +249,19 @@ function process_wb(wb) {
         tr.append("<td class='award'></td>");
         $('#emploee tbody').append(tr);
     }
+
+    initialSlotMachine();
+}
+
+function initialSlotMachine() {
+    
+    $('#slotmachine').show();
+
+    slotmachine = $('.slot').jSlots({
+        onEnd: raffleEnd,
+        min: 1,
+        max: emploee.length,
+    });    
 }
 
 function setAwardSelect(awards) {
@@ -262,3 +294,5 @@ function playCongratulationsSoundEffects() {
 function test() {
     $('#content').load('raffle.html');
 }
+
+initial();
