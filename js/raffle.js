@@ -12,10 +12,20 @@ var slotmachine;
 var raffleCount = 0;
 
 // 目前抽獎的獎項名稱
-var currentAwardName;
+//var currentAwardName;
 
 // 目前抽獎的獎項編號
-var currentAwardNum;
+//var currentAwardNum;
+
+// 目前抽獎的獎項資訊
+var currentAward;
+
+// 避免重啟
+function closeIt() {
+    return "確定要關閉此頁面嗎";
+}
+
+window.onbeforeunload = closeIt;
 
 // 初始化
 function initial() {
@@ -28,7 +38,7 @@ function initial() {
     // initial html view
     $('#award tbody').empty();
     $('#emploee tbody').empty();
-    $('#awardselect').empty();    
+    $('#awardselect').empty();
 }
 
 // 檔案拖曳
@@ -110,38 +120,68 @@ function handleGo(e) {
     var awardnum = $('#awardselect').val();
 
     // 獎項資料
-    var awardObject = award[awardnum - 1];
+    //var awardObject = award[awardnum - 1];
+    currentAward = award[awardnum - 1];
 
     // 如果該獎項已經抽過了
-    if (awardObject.isAlreadyRaffled === true) {
-        alert(awardObject.獎項 + " 已經抽過囉!");
+    if (currentAward.isAlreadyRaffled === true) {
+        alert(currentAward.獎項 + " 已經抽過囉!");
         return;
     }
 
-    raffleCount = awardObject.數量;
-    currentAwardName = awardObject.獎項;
-    currentAwardNum = awardObject.num;
+    raffleCount = currentAward.數量;
+    //currentAwardName = awardObject.獎項;
+    //currentAwardNum = awardObject.num;
+    //currentAward = awardObject;
+
+    //$('#slotfunction').css('opacity', 1);
+    //$('#slotfunction').show();
+    openSlotMachine();
 
     // 開始抽獎
     raffle();
 }
 
+function openSlotMachine() {
+    $('#slotmachine').css('opacity', 1);
+    $('#slotmachinebackground').show();
+    $('#slotbackground').show();
+}
+
+function closeSlotMachine() {
+    $('#slotmachine').css('opacity', 0);
+    $('#slotmachinebackground').hide();
+    $('#slotbackground').hide();
+}
+
 // 抽獎
 function raffle() {
-    if (raffleCount-- <= 0)
-    {
-        markAwardHasRaffled(currentAwardNum);
+    if (raffleCount-- <= 0) {
+        //$('#slotfunction').css('opacity',0);
+        //$('#slotfunction').hide();
+        closeSlotMachine();
+        markAwardHasRaffled(currentAward.編號);
         return;
     }
-        
+
     slotmachine[0].slotmachine.playSlots();
 }
 
 function raffleEnd(raffleNum) {
-    alert(raffleNum);
+    //alert(raffleNum);
     playCongratulationsSoundEffects();
-    markEmploeeHasAward(raffleNum, currentAwardName);
+    markEmploeeHasAward(raffleNum, currentAward);
+    sleep(1000);
     raffle();
+}
+
+function sleep(milliseconds) {
+    var start = new Date().getTime();
+    for (var i = 0; i < 1e7; i++) {
+        if ((new Date().getTime() - start) > milliseconds) {
+            break;
+        }
+    }
 }
 
 // 取得亂數號碼
@@ -151,18 +191,19 @@ function getRandomNum(min, max, exclude) {
 }
 
 // 標示員工已經中獎
-function markEmploeeHasAward(num, award) {
+function markEmploeeHasAward(raffleNum, award) {
 
     // 判斷該員工沒有得獎
     //if (emploee[num - 1].獎項)
 
-    emploee[num - 1].獎項 = award;
+    emploee[raffleNum - 1].獎項 = award.編號;
 
     // add has award class
-    $('#emploee' + num).addClass('hasaward');
+    //$('#emploee' + num).addClass('hasaward');
+    $('#emploee' + raffleNum).css("background-color", award.背景顏色).css("color", award.文字顏色);
 
     // add award to emploee table row
-    $('#emploee' + num + ' .award').html(award);
+    $('#emploee' + raffleNum + ' .award').html(award.獎項);
 }
 
 // 標示該獎項已經抽過了
@@ -189,7 +230,11 @@ function handleDrop(e) {
 
             process_wb(wb);
 
+            setAwardColor();
+
             setAwardSelect(award);
+
+            initialSlotMachine();
         }
     };
     reader.readAsArrayBuffer(f);
@@ -219,13 +264,21 @@ function process_wb(wb) {
     $('#award tbody').empty();
 
     award = data.獎項;
+
+    // 按照獎項編號排序
+    award = award.sort(function (a, b) {
+        if (a.編號 > b.編號) return 1;
+        if (a.編號 <= b.編號) return -1;
+        return 0;
+    })
+
     for (var i = 0; i < award.length; ++i) {
 
-        award[i].num = i + 1;
+        //award[i].編號 = i + 1;
         award[i].isAlreadyRaffled = false;
 
-        tr = $('<tr id="award' + award[i].num + '"/>');
-        tr.append("<td>" + award[i].num + "</td>");
+        tr = $('<tr id="award' + award[i].編號 + '"/>');
+        tr.append("<td>" + award[i].編號 + "</td>");
         tr.append("<td>" + award[i].獎項 + "</td>");
         tr.append("<td>" + award[i].數量 + "</td>");
         tr.append("<td class='isAlreadyRaffled'></td>");
@@ -249,26 +302,32 @@ function process_wb(wb) {
         tr.append("<td class='award'></td>");
         $('#emploee tbody').append(tr);
     }
-
-    initialSlotMachine();
 }
 
 function initialSlotMachine() {
-    
-    $('#slotmachine').show();
+
+    //$('#slotfunction').show();
 
     slotmachine = $('.slot').jSlots({
         onEnd: raffleEnd,
         min: 1,
         max: emploee.length,
-    });    
+    });
+}
+
+
+// 設定獎項 html 背景顏色 & 文字顏色
+function setAwardColor() {
+    for (var i = 1; i < award.length + 1; ++i) {
+        $('#award' + i).css("background-color", award[i - 1].背景顏色).css("color", award[i - 1].文字顏色);
+    }
 }
 
 function setAwardSelect(awards) {
     $('#awardselect').empty();
 
-    for (var i = 0; i < awards.length; ++i) {
-        $('#awardselect').append($("<option></option>").val(awards[i].num).html(awards[i].獎項));
+    for (var i = awards.length - 1; i >= 0; --i) {
+        $('#awardselect').append($("<option></option>").val(awards[i].編號).html("(" + (awards[i].編號) + ") " + awards[i].獎項));
     }
 }
 
@@ -288,11 +347,33 @@ function to_json(workbook) {
 function playCongratulationsSoundEffects() {
 
     var num = getRandomNum(1, 2, []);
-    $('#Congratulations' + num)[0].play();
+    if (checkIsDefined($('#Congratulations' + num)[0]) === true)
+        $('#Congratulations' + num)[0].play();
 }
 
-function test() {
-    $('#content').load('raffle.html');
+function checkIsDefined(object) {
+    if (typeof object !== 'undefined')
+        return true;
+    else
+        return false;
 }
 
-initial();
+function log(message) {
+    //var txtFile = "../test.txt";
+    //var file = new File([""], txtFile);
+
+    //file.open("w"); // open file with write access    
+    //file.writeln(message);
+    //file.writeln("-------------------------------------");
+    //file.close();
+
+    var fso = new CreateObject("Scripting.FileSystemObject");
+    var fh = fso.CreateTextFile("../test.txt", 8, true, 0);
+    fh.WriteLine(message);
+    fh.WriteLine("-------------------------------------");
+    fh.Close();
+}
+
+//initial();
+
+//log("Begin");
