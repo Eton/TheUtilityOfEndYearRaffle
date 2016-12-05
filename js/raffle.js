@@ -2,9 +2,9 @@
 var emploee, award;
 
 // 已經中獎的員工編號
-var hasaward = [];
+//var hasaward = [];
 
-var raffleTimeInterval = 1500;
+//var raffleTimeInterval = 1500;
 
 var slotmachine;
 
@@ -33,12 +33,19 @@ function initial() {
     // initial memory data
     emploee = [];
     award = [];
-    hasaward = [];
+    raffleCount = 0;
+    //hasaward = [];
 
     // initial html view
     $('#award tbody').empty();
     $('#emploee tbody').empty();
     $('#awardselect').empty();
+
+    // 顯示可以丟置檔案的框框
+    $('#dropaward').show();
+
+    // 重置 slot machine 的隨機數字
+    slotmachine[0].slotmachine.InitialRadomNum();
 }
 
 // 檔案拖曳
@@ -60,10 +67,10 @@ if (resetbtn.addEventListener) {
     resetbtn.addEventListener('click', hanleReset, false);
 }
 
-var raffleagain = document.getElementById('raffleagain');
-if (raffleagain.addEventListener) {
-    raffleagain.addEventListener('click', handleRaffleAgain, false);
-}
+//var raffleagain = document.getElementById('raffleagain');
+//if (raffleagain.addEventListener) {
+//    raffleagain.addEventListener('click', handleRaffleAgain, false);
+//}
 
 var exportBtn = document.getElementById('export');
 if (exportBtn.addEventListener) {
@@ -83,25 +90,25 @@ function handleExport(e) {
         }
     }
 
-    export_table_to_excel('emploee');
+    export_table_to_excel('emploee', "raffle.xlsx");
 }
 
 // 方便測試用，一直重複抽獎
-function handleRaffleAgain(e) {
-    hasaward = [];
+//function handleRaffleAgain(e) {
+//    //hasaward = [];
 
-    for (var i = 0; i < emploee.length; ++i) {
-        emploee[i].獎項 = "";
-        $('#emploee' + emploee[i].編號).removeClass('hasaward');
-        $('#emploee' + (i + 1) + ' .award').html('');
-    }
+//    for (var i = 0; i < emploee.length; ++i) {
+//        emploee[i].獎項 = "";
+//        $('#emploee' + emploee[i].編號).css("background-color", "white").css("color", "black");
+//        $('#emploee' + (i + 1) + ' .award').html('');
+//    }
 
-    for (var i = 0; i < award.length; ++i) {
-        award[i].isAlreadyRaffled = false;
-    }
+//    for (var i = 0; i < award.length; ++i) {
+//        award[i].isAlreadyRaffled = false;
+//    }
 
-    handleGo(e);
-}
+//    handleGo(e);
+//}
 
 function hanleReset(e) {
     initial();
@@ -136,43 +143,72 @@ function handleGo(e) {
 
     //$('#slotfunction').css('opacity', 1);
     //$('#slotfunction').show();
-    openSlotMachine();
+    //openSlotMachine();
 
     // 開始抽獎
     raffle();
 }
 
-function openSlotMachine() {
-    $('#slotmachine').css('opacity', 1);
-    $('#slotmachinebackground').show();
-    $('#slotbackground').show();
-}
+//function openSlotMachine() {
+//    $('#slotmachine').css('opacity', 1);
+//    $('#slotmachinebackground').show();
+//    $('#slotbackground').show();
+//}
 
-function closeSlotMachine() {
-    $('#slotmachine').css('opacity', 0);
-    $('#slotmachinebackground').hide();
-    $('#slotbackground').hide();
-}
+//function closeSlotMachine() {
+//    $('#slotmachine').css('opacity', 0);
+//    $('#slotmachinebackground').hide();
+//    $('#slotbackground').hide();
+//}
 
 // 抽獎
 function raffle() {
     if (raffleCount-- <= 0) {
         //$('#slotfunction').css('opacity',0);
         //$('#slotfunction').hide();
-        closeSlotMachine();
+        //closeSlotMachine();
         markAwardHasRaffled(currentAward.編號);
+
+        export_table_to_excel('emploee', currentAward.獎項 + ".xlsx");
+
         return;
     }
 
-    slotmachine[0].slotmachine.playSlots();
+    slotmachine[0].slotmachine.playSlots(currentAward.表演時間);
 }
 
 function raffleEnd(raffleNum) {
     //alert(raffleNum);
     playCongratulationsSoundEffects();
-    markEmploeeHasAward(raffleNum, currentAward);
-    sleep(1000);
-    raffle();
+
+    // 移動scollbar
+    moveEmploeeScrollbar(raffleNum);
+}
+
+function moveEmploeeScrollbar(raffleNum) {
+
+    // 取得 table 高度
+    var tableHeight = $('#emploeeDiv').height();
+
+    // 取得一個 row 的高度
+    var unitHeight = $('#emploee tbody tr').eq(0).height();
+
+    // 計算目標高度
+    var targetTop = (raffleNum - 1) * unitHeight;
+
+    // 超過 table 的一半高度才移動
+    targetTop = (targetTop > (tableHeight / 2)) ? targetTop - (tableHeight / 2) : 0;
+
+    // 目前高度
+    var currentTop = $("#emploeeDiv").scrollTop();
+
+    // 依照移動高度差來設定時間
+    var animationTime = Math.abs(currentTop - targetTop) / unitHeight * 40;
+
+    $("#emploeeDiv").animate({ scrollTop: targetTop }, animationTime, 'easeOutSine', function () {
+        markEmploeeHasAward(raffleNum, currentAward);
+        raffle();
+    });
 }
 
 function sleep(milliseconds) {
@@ -227,6 +263,8 @@ function handleDrop(e) {
 
             var arr = fixdata(data);
             wb = X.read(btoa(arr), { type: 'base64' });
+
+            $('#dropaward').hide();
 
             process_wb(wb);
 
@@ -306,13 +344,18 @@ function process_wb(wb) {
 
 function initialSlotMachine() {
 
-    //$('#slotfunction').show();
+    if (checkIsDefined(slotmachine))
+        return;
+
+    $('#slotmachine').show();
 
     slotmachine = $('.slot').jSlots({
         onEnd: raffleEnd,
         min: 1,
         max: emploee.length,
     });
+
+    //$('#slotmachine').css('opacity', 1);
 }
 
 
@@ -346,9 +389,9 @@ function to_json(workbook) {
 // 播放恭喜中獎音效
 function playCongratulationsSoundEffects() {
 
-    var num = getRandomNum(1, 2, []);
-    if (checkIsDefined($('#Congratulations' + num)[0]) === true)
-        $('#Congratulations' + num)[0].play();
+    //var num = getRandomNum(1, 2, []);
+    if (checkIsDefined($('#Congratulations')[0]) === true)
+        $('#Congratulations')[0].play();
 }
 
 function checkIsDefined(object) {

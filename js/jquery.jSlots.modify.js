@@ -35,13 +35,13 @@
         $.jSlots.defaultOptions = {
             number: 3,          // Number: number of slots
             //winnerNumber: 1,    // Number or Array: list item number(s) upon which to trigger a win, 1-based index, NOT ZERO-BASED
-            spinner: '',        // CSS Selector: element to bind the start event to
+            //spinner: '',        // CSS Selector: element to bind the start event to
             //spinEvent: 'click', // String: event to start slots on this event
             onStart: $.noop,    // Function: runs on spin start,
             onEnd: $.noop,      // Function: run on spin end. It is passed (finalNumbers:Array). finalNumbers gives the index of the li each slot stopped on in order.
             //onWin: $.noop,      // Function: run on winning number. It is passed (winCount:Number, winners:Array)
-            easing: 'easeOutSine',    // String: easing type for final spin
-            time: [2000, 4000, 7000],         // Number: total time of spin animation
+            //easing: 'easeOutSine',    // String: easing type for final spin
+            //time: [2000, 4000, 7000],         // Number: total time of spin animation
             loops: [2, 4, 7],            // Number: times it will spin during the animation            
             min: 1,
             max: 127,
@@ -125,7 +125,7 @@
 
             this.index = i;
             this.spinSpeed = 0;
-            this.increment = (base.options.time[i] / base.options.loops[i]) / base.options.loops[i];
+            this.increment = 0;//(base.options.time[i] / base.options.loops[i]) / base.options.loops[i];
             this.el = base.$el.clone().appendTo(base.$wrapper)[0];
             this.$el = $(this.el);
             this.loopCount = 0;
@@ -180,11 +180,11 @@
 
                 finalSpeed = finalSpeed * (this.index * 2 + 5) / 10;
 
-                console.log('index : ' + this.index + 'finalSpeed : ' + finalSpeed)
+                //console.log('index : ' + this.index + 'finalSpeed : ' + finalSpeed)
 
                 that.$el
                     .css('top', -base.listHeight)
-                    .animate({ 'top': finalPos }, finalSpeed, base.options.easing, function () {
+                    .animate({ 'top': finalPos }, finalSpeed, 'easeOutSine', function () {
                         base.endSlot();
                     });
 
@@ -242,8 +242,8 @@
         //    }
         //};
 
-
-        base.playSlots = function () {
+        //[2000, 4000, 7000]
+        base.playSlots = function (showtime) {
 
             base.isSpinning = true;
             //base.winCount = 0;
@@ -252,19 +252,31 @@
             var target = base.randomRange(base.options.min, base.options.max, base.exclude);
             base.exclude.push(target);
 
+            //var time = [];
+            // 計算 loops 總和
+            var totalloops = 0;
+            for (var i = 0 ; i < base.options.loops.length ; i++) {
+                totalloops += base.options.loops[i];
+            }
+
             // 高位數放在低索引位置上
             for (var i = 1 ; i <= base.options.number ; i++) {
                 base.endNum[base.options.number - i] = Math.floor((target % Math.pow(10, i)) * 10 / Math.pow(10, i));
+
+                var time = showtime * base.options.loops[i - 1] / totalloops;
+
+                console.log("time : (" + i + ") : " + time);
+
+                // 計算每個 slot 的 遞增時間
+                base.allSlots[i - 1].increment = (time / base.options.loops[i - 1]) / base.options.loops[i - 1];
             }
 
             console.log("target num : " + target);
-            console.log("target num : " + base.endNum);
+            //console.log("target num : " + base.endNum);
 
             if ($.isFunction(base.options.onStart)) {
                 base.options.onStart();
             }
-
-            //var n = 2;
 
             $.each(base.allSlots, function (index, val) {
                 this.spinSpeed = 0;
@@ -273,6 +285,10 @@
             });
 
         };
+
+        base.InitialRadomNum = function () {
+            base.exclude = [];
+        }
 
 
         //base.onWin = function () {
