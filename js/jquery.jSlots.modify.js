@@ -188,6 +188,21 @@
                         base.endSlot();
                     });
 
+            },
+
+            noAnimation: function () {
+                var that = this;
+
+                var finalPos = -((base.$liHeight * (base.endNum[that.index] + 1)) - base.$liHeight);
+
+                that.$el.css('top', finalPos);
+
+                base.endSlot();
+                //that.$el
+                //    .css('top', -base.listHeight)
+                //    .animate({ 'top': finalPos }, 100, 'linear', function () {
+                //        base.endSlot();
+                //    });
             }
 
         };
@@ -252,36 +267,46 @@
             var target = base.randomRange(base.options.min, base.options.max, base.exclude);
             base.exclude.push(target);
 
-            //var time = [];
-            // 計算 loops 總和
-            var totalloops = 0;
-            for (var i = 0 ; i < base.options.loops.length ; i++) {
-                totalloops += base.options.loops[i];
-            }
-
             // 高位數放在低索引位置上
             for (var i = 1 ; i <= base.options.number ; i++) {
                 base.endNum[base.options.number - i] = Math.floor((target % Math.pow(10, i)) * 10 / Math.pow(10, i));
-
-                var time = showtime * base.options.loops[i - 1] / totalloops;
-
-                console.log("time : (" + i + ") : " + time);
-
-                // 計算每個 slot 的 遞增時間
-                base.allSlots[i - 1].increment = (time / base.options.loops[i - 1]) / base.options.loops[i - 1];
             }
 
             console.log("target num : " + target);
-            //console.log("target num : " + base.endNum);
 
+            // 0 秒不跑動畫
+            if (showtime > 0) {
+                // 計算 loops 總和
+                var totalloops = 0;
+                for (var i = 0 ; i < base.options.loops.length ; i++) {
+                    totalloops += base.options.loops[i];
+                }
+
+                // 計算每個 slot 的 遞增時間
+                for (var i = 1 ; i <= base.options.number ; i++) {
+                    var time = showtime * base.options.loops[i - 1] / totalloops;
+
+                    base.allSlots[i - 1].increment = (time / base.options.loops[i - 1]) / base.options.loops[i - 1];
+
+                    //console.log("time : (" + i + ") : " + time);
+                }                
+            }
+
+            // 執行開始前的事件
             if ($.isFunction(base.options.onStart)) {
                 base.options.onStart();
             }
 
             $.each(base.allSlots, function (index, val) {
-                this.spinSpeed = 0;
-                this.loopCount = 0;
-                this.spinEm();
+
+                if (showtime > 0) {
+                    this.spinSpeed = 0;
+                    this.loopCount = 0;
+                    this.spinEm();
+                }
+                else {
+                    this.noAnimation();
+                }
             });
 
         };

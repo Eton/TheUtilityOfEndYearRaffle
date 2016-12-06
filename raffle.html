@@ -34,7 +34,6 @@
             </div>
         </div>
     </nav>-->
-
     <!--<div id="slotmachinebackground"></div>
     <div id="slotbackground"></div>-->
 
@@ -67,7 +66,10 @@
                 <span class="glyphicon glyphicon-export"></span>
                 匯出中獎表格
             </button>
-            <!--<div style="float:right;">-->抽獎獎項 : <select id="awardselect"></select><!--</div>-->
+            抽獎獎項 : <select id="awardselect"></select>
+
+            <span style="float:right; text-align: center;height: 47px;line-height: 47px;">獎項剩餘數量 : <span id="remainingNum" style="color:red;font-size:26px"></span></span>
+
         </div>
 
         <div style="width:45%; float:left;">
@@ -97,7 +99,7 @@
                                     <th style="width:25%">部門</th>
                                     <th style="width:25%">姓名</th>
                                     <th style="width:31%">抽中獎項</th>
-                                    <th style="width:4%"></th> <!--多出這項是SCROLL BAR 的空間--> 
+                                    <th style="width:4%"></th> <!--多出這項是SCROLL BAR 的空間-->
                                 </tr>
                             </thead>
                         </table>
@@ -106,7 +108,7 @@
                 <tr>
                     <td>
                         <div id="emploeeDiv" style="height:500px; overflow:auto;">
-                            <table id="emploee" class="table table-condensed">                                
+                            <table id="emploee" class="table table-condensed">
                                 <tbody style="font-size:18px;"></tbody>
                             </table>
                         </div>

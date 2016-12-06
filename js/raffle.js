@@ -34,6 +34,8 @@ function initial() {
     emploee = [];
     award = [];
     raffleCount = 0;
+
+    UpdateRemainingNum(raffleCount);
     //hasaward = [];
 
     // initial html view
@@ -90,6 +92,23 @@ function handleExport(e) {
         }
     }
 
+    // 剩下抽獎人 是否給予普獎
+    if (confirm("剩餘抽獎人補上普獎匯出?")) {
+        // 獎項資訊
+        var normalAward = {};
+        normalAward.編號 = award.length;
+        normalAward.獎項 = "誠意十足禮券";
+        normalAward.背景顏色 = "white";
+        normalAward.文字顏色 = "black"
+
+        for (var i = 0; i < emploee.length; ++i) {
+            if (emploee[i].獎項 != "") // 已經抽過了
+                continue;
+
+            markEmploeeHasAward((i + 1), normalAward);
+        }
+    }
+
     export_table_to_excel('emploee', "raffle.xlsx");
 }
 
@@ -118,7 +137,7 @@ function hanleReset(e) {
 function handleGo(e) {
 
     // 判斷是否有員工 & 獎項資料
-    if (typeof emploee == 'undefined' || typeof award == 'undefined' || emploee === null || award === null || emploee.length <= 0 || award.length <= 0) {
+    if (!checkIsDefined(emploee) || !checkIsDefined(award) || emploee === null || award === null || emploee.length <= 0 || award.length <= 0) {
         alert('請先匯入員工 & 獎項資料');
         return;
     }
@@ -146,6 +165,9 @@ function handleGo(e) {
     //openSlotMachine();
 
     // 開始抽獎
+
+    disabledControl(true);
+
     raffle();
 }
 
@@ -163,16 +185,25 @@ function handleGo(e) {
 
 // 抽獎
 function raffle() {
+
+    UpdateRemainingNum(raffleCount);
+
     if (raffleCount-- <= 0) {
         //$('#slotfunction').css('opacity',0);
         //$('#slotfunction').hide();
         //closeSlotMachine();
         markAwardHasRaffled(currentAward.編號);
 
+        disabledControl(false);
+
         export_table_to_excel('emploee', currentAward.獎項 + ".xlsx");
 
         return;
     }
+
+
+    //if (currentAward.表演時間 <= 0)
+    //    sleep(1000);
 
     slotmachine[0].slotmachine.playSlots(currentAward.表演時間);
 }
@@ -183,6 +214,17 @@ function raffleEnd(raffleNum) {
 
     // 移動scollbar
     moveEmploeeScrollbar(raffleNum);
+}
+
+function disabledControl(enable) {
+    $('#go').prop('disabled', enable);
+    $('#reset').prop('disabled', enable);
+    $('#export').prop('disabled', enable);
+    $('#awardselect').prop('disabled', enable);
+}
+
+function UpdateRemainingNum(num) {
+    $('#remainingNum').html(num);
 }
 
 function moveEmploeeScrollbar(raffleNum) {
@@ -206,8 +248,8 @@ function moveEmploeeScrollbar(raffleNum) {
     var animationTime = Math.abs(currentTop - targetTop) / unitHeight * 40;
 
     $("#emploeeDiv").animate({ scrollTop: targetTop }, animationTime, 'easeOutSine', function () {
-        markEmploeeHasAward(raffleNum, currentAward);
-        raffle();
+        markEmploeeHasAward(raffleNum, currentAward, raffle);
+        //raffle();
     });
 }
 
@@ -227,19 +269,28 @@ function getRandomNum(min, max, exclude) {
 }
 
 // 標示員工已經中獎
-function markEmploeeHasAward(raffleNum, award) {
+function markEmploeeHasAward(raffleNum, award, callback) {
 
     // 判斷該員工沒有得獎
     //if (emploee[num - 1].獎項)
 
     emploee[raffleNum - 1].獎項 = award.編號;
 
-    // add has award class
-    //$('#emploee' + num).addClass('hasaward');
-    $('#emploee' + raffleNum).css("background-color", award.背景顏色).css("color", award.文字顏色);
+    $('#emploee' + raffleNum).css({ "background-color": award.背景顏色, "color": award.文字顏色 });
 
     // add award to emploee table row
     $('#emploee' + raffleNum + ' .award').html(award.獎項);
+
+    if (checkIsDefined(callback)) {
+        if (award.表演時間 > 0) {
+            callback();
+        }
+        else {
+            setTimeout(function () {
+                callback();
+            }, 1800);
+        }
+    }
 }
 
 // 標示該獎項已經抽過了
@@ -362,7 +413,7 @@ function initialSlotMachine() {
 // 設定獎項 html 背景顏色 & 文字顏色
 function setAwardColor() {
     for (var i = 1; i < award.length + 1; ++i) {
-        $('#award' + i).css("background-color", award[i - 1].背景顏色).css("color", award[i - 1].文字顏色);
+        $('#award' + i).css({ "background-color": award[i - 1].背景顏色, "color": award[i - 1].文字顏色 });
     }
 }
 
