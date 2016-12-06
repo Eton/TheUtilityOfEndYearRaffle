@@ -34,13 +34,23 @@ ul {
     list-style: none;
 }
 
+/*#backgroundlogo {
+    position: absolute;
+    height: 143px;
+    width: 38px;
+    top: 0%;
+    left: 10%;   
+    opacity: 0.7;
+    background-image: url(../image/logo_source.png);
+}*/
+
 .jSlots-wrapper {
     overflow: hidden;
     height: 300px;
     display: inline-block; /* to size correctly, can use float too, or width*/
     /*border: 1px solid #999;*/
     background: -webkit-linear-gradient(130deg, red, orange,yellow,green,blue,Indigo,purple);
-        /**/
+    /**/
     /*background-color:silver*/
 }
 
@@ -130,15 +140,15 @@ div button {
 }
 
 #emploee tbody tr td:nth-child(2) {
-    width: 25%;
+    width: 21%;
 }
 
 #emploee tbody tr td:nth-child(3) {
-    width: 25%;
+    width: 21%;
 }
 
 #emploee tbody tr td:nth-child(4) {
-    width: 31%;
+    width: 39%;
 }
 /**/
 /*#award{    
