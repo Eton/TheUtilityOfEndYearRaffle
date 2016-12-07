@@ -97,7 +97,11 @@ function handleExport(e) {
 }
 
 function hanleReset(e) {
-    initial();
+
+    if (confirm('確定要重置嗎?'))
+    {
+        initial();
+    }    
 }
 
 // 抽獎按鈕
@@ -135,6 +139,9 @@ function raffle() {
     UpdateRemainingNum(raffleCount);
 
     if (--raffleCount < 0) {
+
+        playCongratulationsSoundEffects(currentAward.獎項 + '已經抽好抽滿了', '1');
+
         markAwardHasRaffled(currentAward.編號);
 
         keepMoveEmploee();
@@ -150,9 +157,6 @@ function raffle() {
 }
 
 function raffleEnd(raffleNum) {
-    //alert(raffleNum);
-    playCongratulationsSoundEffects();
-
     // 移動scollbar
     moveEmploeeScrollbar(raffleNum);
 }
@@ -189,6 +193,14 @@ function moveEmploeeScrollbar(raffleNum) {
     var animationTime = Math.abs(currentTop - targetTop) / unitHeight * 40;
 
     $("#emploeeDiv").animate({ scrollTop: targetTop }, animationTime, 'easeOutSine', function () {
+
+        // 取得音效文字
+        var random = getRandomNum(1, currentAward.soundEffect.length);
+        var text = currentAward.soundEffect[random - 1];
+
+        //alert(raffleNum);
+        playCongratulationsSoundEffects(text, '0.8');
+
         markEmploeeHasAward(raffleNum, currentAward, raffle);
     });
 }
@@ -231,9 +243,8 @@ function keepMoveEmploee() {
 //}
 
 // 取得亂數號碼
-function getRandomNum(min, max, exclude) {
-    var num = Math.floor(Math.random() * (max - min + 1)) + min;
-    return exclude.indexOf(num) === -1 ? num : getRandomNum(min, max, exclude);
+function getRandomNum(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 // 標示員工已經中獎
@@ -333,6 +344,9 @@ function process_wb(wb) {
         //award[i].編號 = i + 1;
         award[i].isAlreadyRaffled = false;
 
+        // 音效文字
+        award[i].soundEffect = award[i].音效文字.split(',');
+
         tr = $('<tr id="award' + award[i].編號 + '"/>');
         tr.append("<td>" + award[i].編號 + "</td>");
         tr.append("<td>" + award[i].獎項 + "</td>");
@@ -402,11 +416,31 @@ function to_json(workbook) {
     return result;
 }
 
-// 播放恭喜中獎音效
-function playCongratulationsSoundEffects() {
+// google tts ref
+// http://stackoverflow.com/questions/32053442/google-translate-tts-api-blocked
+// http://stackoverflow.com/questions/9893175/google-text-to-speech-api
 
-    if (checkIsDefined($('#Congratulations')[0]) === true)
-        $('#Congratulations')[0].play();
+// 播放google ladys音效
+function playCongratulationsSoundEffects(text, speed) {
+
+    if (text == "none")
+        return;
+
+    try {
+        var url = generateGoogleTTSLink(text, speed, "zh-TW", '411425.13000290');
+
+        $('audio').attr('src', url).get(0).play();
+    }
+    catch (err) {
+        console.log("error audio : " + err);
+    }
+
+    //if (checkIsDefined($('#Congratulations')[0]) === true)
+    //    $('#Congratulations')[0].play();
+}
+
+function randomFloatBetween(minValue, maxValue, precision) {
+    return parseFloat(Math.min(minValue + (Math.random() * (maxValue - minValue)), maxValue).toFixed(precision));
 }
 
 function checkIsDefined(object) {
