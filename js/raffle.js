@@ -25,6 +25,9 @@ function initial() {
     currentAward = {};
     raffleCount = 0;
 
+    audios = [];
+    playnow = false;
+
     UpdateRemainingNum(raffleCount);
 
     // initial html view
@@ -98,10 +101,9 @@ function handleExport(e) {
 
 function hanleReset(e) {
 
-    if (confirm('確定要重置嗎?'))
-    {
+    if (confirm('確定要重置嗎?')) {
         initial();
-    }    
+    }
 }
 
 // 抽獎按鈕
@@ -140,7 +142,6 @@ function raffle() {
 
     if (--raffleCount < 0) {
 
-        playCongratulationsSoundEffects(currentAward.獎項 + '已經抽好抽滿了', '1');
 
         markAwardHasRaffled(currentAward.編號);
 
@@ -159,17 +160,6 @@ function raffle() {
 function raffleEnd(raffleNum) {
     // 移動scollbar
     moveEmploeeScrollbar(raffleNum);
-}
-
-function disabledControl(enable) {
-    $('#go').prop('disabled', enable);
-    $('#reset').prop('disabled', enable);
-    $('#export').prop('disabled', enable);
-    $('#awardselect').prop('disabled', enable);
-}
-
-function UpdateRemainingNum(num) {
-    $('#remainingNum').html(num);
 }
 
 function moveEmploeeScrollbar(raffleNum) {
@@ -199,10 +189,21 @@ function moveEmploeeScrollbar(raffleNum) {
         var text = currentAward.soundEffect[random - 1];
 
         //alert(raffleNum);
-        playCongratulationsSoundEffects(text, '0.8');
+        playSoundEffects(text, '0.8');
 
         markEmploeeHasAward(raffleNum, currentAward, raffle);
     });
+}
+
+function disabledControl(enable) {
+    $('#go').prop('disabled', enable);
+    $('#reset').prop('disabled', enable);
+    $('#export').prop('disabled', enable);
+    $('#awardselect').prop('disabled', enable);
+}
+
+function UpdateRemainingNum(num) {
+    $('#remainingNum').html(num);
 }
 
 function stopMoveEmploee() {
@@ -258,14 +259,9 @@ function markEmploeeHasAward(raffleNum, award, callback) {
     $('#emploee' + raffleNum + ' .award').html(award.獎項);
 
     if (checkIsDefined(callback)) {
-        if (award.表演時間 > 0) {
+        setTimeout(function () {
             callback();
-        }
-        else {
-            setTimeout(function () {
-                callback();
-            }, 1800);
-        }
+        }, 1600);
     }
 }
 
@@ -347,6 +343,9 @@ function process_wb(wb) {
         // 音效文字
         award[i].soundEffect = award[i].音效文字.split(',');
 
+        // 抽完獎項的音效
+        award[i].endSoundEffect = award[i].結束音效.split(',');
+
         tr = $('<tr id="award' + award[i].編號 + '"/>');
         tr.append("<td>" + award[i].編號 + "</td>");
         tr.append("<td>" + award[i].獎項 + "</td>");
@@ -420,8 +419,11 @@ function to_json(workbook) {
 // http://stackoverflow.com/questions/32053442/google-translate-tts-api-blocked
 // http://stackoverflow.com/questions/9893175/google-text-to-speech-api
 
+var audios = [];
+var playnow = false;
+
 // 播放google ladys音效
-function playCongratulationsSoundEffects(text, speed) {
+function playSoundEffects(text, speed) {
 
     if (text == "none")
         return;
@@ -429,7 +431,10 @@ function playCongratulationsSoundEffects(text, speed) {
     try {
         var url = generateGoogleTTSLink(text, speed, "zh-TW", '411425.13000290');
 
-        $('audio').attr('src', url).get(0).play();
+        // 塞到陣列裡
+        audios.push(url);
+
+        playSoundInQueue();
     }
     catch (err) {
         console.log("error audio : " + err);
@@ -438,6 +443,29 @@ function playCongratulationsSoundEffects(text, speed) {
     //if (checkIsDefined($('#Congratulations')[0]) === true)
     //    $('#Congratulations')[0].play();
 }
+
+function playSoundInQueue() {
+    if (audios.length <= 0 || playnow == true)
+        return;
+
+    try {
+        playnow = true;
+        var url = audios.pop();
+
+        $('#googletts').attr('src', url).get(0).play();
+    }
+    catch (err) {
+        console.log("error audio : " + err);
+    }
+}
+
+$("#googletts").bind('ended', function () {
+    playnow = false;
+
+    setTimeout(function () {
+        playSoundInQueue();
+    }, 500);
+});
 
 function randomFloatBetween(minValue, maxValue, precision) {
     return parseFloat(Math.min(minValue + (Math.random() * (maxValue - minValue)), maxValue).toFixed(precision));
