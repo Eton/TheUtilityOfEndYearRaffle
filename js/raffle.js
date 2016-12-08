@@ -142,6 +142,7 @@ function raffle() {
 
     if (--raffleCount < 0) {
 
+        playSoundEffects(currentAward.endSoundEffect[0], '1');
 
         markAwardHasRaffled(currentAward.編號);
 
