@@ -21,6 +21,40 @@ body {
     overflow: hidden;
 }
 
+#bg {
+    position: fixed;
+    top: -250px;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    /*width: 100%;
+    height: 100%;*/
+    /*background-size:cover;
+    background: url("../image/bg2.jpg") center center fixed no-repeat;*/
+    /*background-repeat: no-repeat;*/
+    z-index: -999;
+    opacity: 0.9;
+}
+
+    #bg img {
+        min-height: 100%;
+        width: 100%;
+    }
+
+#mark {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: -100;
+    height: 143px;
+    width: 38px;
+}
+
+    #mark img {
+    }
+
 .tabletitle {
     font-size: 28px;
     text-align: center;
